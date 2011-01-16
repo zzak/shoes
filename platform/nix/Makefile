@@ -24,7 +24,7 @@ GTK_LIB = `pkg-config --libs gtk+-2.0`
 CURL_CFLAGS = `curl-config --cflags`
 CURL_LIB = `curl-config --libs`
 RELEASE_NAME = `cat shoes/version.h | ruby -ne 'puts $$1.downcase if ~/SHOES_RELEASE_NAME "(.+)"/'`
-HPRICOT_NAME = `ruby -rubygems -e 'puts eval(File.read("req/hpricot/gemspec")).full_name'`
+NOKOGIRI_NAME = 'nokogiri' 
 SQLITE_NAME = `ruby -rubygems -e 'puts eval(File.read("req/sqlite3/gemspec")).full_name'`
 JSON_NAME = `ruby -rubygems -e 'puts eval(File.read("req/json/gemspec")).full_name'`
 GEM_DIR = "dist/ruby/gems/${RUBY_VERSION}"
@@ -79,11 +79,10 @@ dist/shoes.launch: dist/shoes-bin
 	@cp -r lib dist/lib
 	@cp -r req/rubygems/* dist/lib
 	@mkdir -p ${GEM_DIR}/specifications
-	@mkdir -p ${GEM_DIR}/gems/${HPRICOT_NAME}
-	@cp -r req/hpricot/lib ${GEM_DIR}/gems/${HPRICOT_NAME}/lib
-	@cd req/hpricot/ext/hpricot_scan && ruby extconf.rb && make
-	@cp req/hpricot/ext/hpricot_scan/*.so ${GEM_DIR}/gems/${HPRICOT_NAME}/lib
-	@cp req/hpricot/gemspec ${GEM_DIR}/specifications/${HPRICOT_NAME}.gemspec
+	@mkdir -p ${GEM_DIR}/gems/${NOKOGIRI_NAME}
+	@cp -r req/nokogiri/lib ${GEM_DIR}/gems/${NOKOGIRI_NAME}/lib
+	@cp -r req/nokogiri/ext ${GEM_DIR}/gems/${NOKOGIRI_NAME}/ext
+	@cd req/nokogiri/ext/nokogiri && ruby extconf.rb && make
 	@mkdir -p ${GEM_DIR}/gems/${SQLITE_NAME}
 	@cp -r req/sqlite3/lib ${GEM_DIR}/gems/${SQLITE_NAME}/lib
 	@cd req/sqlite3/ext/sqlite3 && ruby extconf.rb && make
