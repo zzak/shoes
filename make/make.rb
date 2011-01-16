@@ -64,7 +64,7 @@ module Make
       each { |xdir| copy_ext xdir, "dist/ruby/lib/#{RUBY_PLATFORM}" }
 
     gdir = "dist/ruby/gems/#{RUBY_V}"
-    {'hpricot' => 'lib', 'json' => 'lib/json/ext', 'sqlite3' => 'lib'}.each do |gemn, xdir|
+    {'json' => 'lib/json/ext', 'sqlite3' => 'lib'}.each do |gemn, xdir|
       spec = eval(File.read("req/#{gemn}/gemspec"))
       mkdir_p "#{gdir}/specifications"
       mkdir_p "#{gdir}/gems/#{spec.full_name}/lib"
@@ -72,6 +72,18 @@ module Make
       mkdir_p "#{gdir}/gems/#{spec.full_name}/#{xdir}"
       FileList["req/#{gemn}/ext/*"].each { |elib| copy_ext elib, "#{gdir}/gems/#{spec.full_name}/#{xdir}" }
       cp "req/#{gemn}/gemspec", "#{gdir}/specifications/#{spec.full_name}.gemspec"
+    end
+ 
+    # for now, nokogiri is separated from the previous block
+    # because it uses a hoe spec instead...
+    {'nokogiri' => 'lib'}.each do |gemn, xdir|
+      mkdir_p "#{gdir}/specifications"
+      mkdir_p "#{gdir}/gems/nokogiri/lib"
+      FileList["req/#{gemn}/lib/*"].each { |rlib| cp_r rlib, "#{gdir}/gems/nokogiri/lib" }
+      mkdir_p "#{gdir}/gems/nokogiri/#{xdir}"
+      copy_ext "req/#{gemn}/ext/nokogiri", "#{gdir}/gems/nokogiri/#{xdir}"
+      # need a workaround for the gemspec stuff here 
+      #cp "req/#{gemn}/gemspec", "#{gdir}/specifications/#{spec.full_name}.gemspec"
     end
   end
 
