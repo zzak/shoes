@@ -10,7 +10,7 @@ module Hpricot
 
   ####################################################################
   # XML Character converter, from Sam Ruby:
-  # (see http://intertwingly.net/stories/2005/09/28/xchar.rb). 
+  # (see http://intertwingly.net/stories/2005/09/28/xchar.rb).
   #
   module XChar # :nodoc:
 
@@ -59,7 +59,7 @@ module Hpricot
     # See http://www.w3.org/TR/REC-xml/#charsets for details.
     VALID = [
       0x9, 0xA, 0xD,
-      (0x20..0xD7FF), 
+      (0x20..0xD7FF),
       (0xE000..0xFFFD),
       (0x10000..0x10FFFF)
     ]
@@ -86,7 +86,7 @@ module Hpricot
     # XML unescape
     def uxs(str)
       str.to_s.
-          gsub(/\&\w+;/) { |x| (XChar::PREDEFINED_U[x] || ??).chr }.
+          gsub(/\&\w+;/) { |x| (XChar::PREDEFINED_U[x] || 63).chr }. # 63 = ?? (query char)
           gsub(/\&\#(\d+);/) { [$1.to_i].pack("U*") }
     end
   end

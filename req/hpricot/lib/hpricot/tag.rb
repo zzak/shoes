@@ -38,22 +38,43 @@ module Hpricot
     end
   end
 
-  class Elem
-    TITLES = {:title => :h1, :subtitle => :h2, :tagline => :h3, :caption => :h4}
-    def initialize tag, attrs = nil, children = nil, etag = nil
-      self.name, self.raw_attributes, self.children, self.etag =
-        tag, attrs, children, etag
+  class Attributes
+    attr_accessor :element
+    def initialize e
+      @element = e
     end
-    def empty?; children.nil? or children.empty? end
-    def attributes
-      if raw_attributes
-        raw_attributes.inject({}) do |hsh, (k, v)|
+    def [] k
+      Hpricot.uxs((@element.raw_attributes || {})[k])
+    end
+    def []= k, v
+      (@element.raw_attributes ||= {})[k] = v.fast_xs
+    end
+    def to_hash
+      if @element.raw_attributes
+        @element.raw_attributes.inject({}) do |hsh, (k, v)|
           hsh[k] = Hpricot.uxs(v)
           hsh
         end
       else
         {}
       end
+    end
+    def to_s
+      to_hash.to_s
+    end
+    def inspect
+      to_hash.inspect
+    end
+  end
+
+  class Elem
+    def initialize tag, attrs = nil, children = nil, etag = nil
+      self.name, self.raw_attributes, self.children, self.etag =
+        tag, attrs, children, etag
+    end
+    def empty?; children.nil? or children.empty? end
+    def attributes
+      Attributes.new self
     end
     def to_plain_text
       if self.name == 'br'
@@ -103,10 +124,7 @@ module Hpricot
   class BogusETag
     def initialize name; self.name = name end
     def output(out, opts = {})
-      out <<
-        if_output(opts) do
-          "</#{name}>"
-        end
+      out << if_output(opts) { "" }
     end
   end
 
@@ -159,7 +177,6 @@ module Hpricot
   end
 
   class DocType
-    attr_accessor :target, :public_id, :system_id
     def initialize target, pub, sys
       self.target, self.public_id, self.system_id = target, pub, sys
     end
@@ -178,7 +195,7 @@ module Hpricot
     def pathname; "procins()" end
     def raw_string; output("") end
     def output(out, opts = {})
-      out << 
+      out <<
         if_output(opts) do
           "<?#{target}" +
            (content ? " #{content}" : "") +
